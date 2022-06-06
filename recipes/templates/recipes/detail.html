@@ -1,4 +1,5 @@
 {% load static %}
+{% load markdownify %}
 
 <!DOCTYPE html>
 <html lang="en">
@@ -19,6 +20,9 @@
           <a href="{% url 'home' %}">Scrumptious</a>
         </li>
         <li>
+          <a href="{% url 'tags_list' %}">Tags</a>
+        </li>
+        <li>
           <a href="{% url 'admin:index' %}">Admin</a>
         </li>
         <li>
@@ -28,6 +32,10 @@
     </nav>
   </header>
   <main class="recipe-detail">
+    <div>
+      <a href="{% url 'recipe_edit' recipe.id %}">Edit</a>
+      <a href="{% url 'recipe_delete' recipe.id %}">Delete</a>
+    </div>
     {% if recipe.image %}
       <img src="{{ recipe.image }}" class="pull-right">
     {% endif %}
@@ -36,8 +44,15 @@
       Created on {{ recipe.created }} |
       Updated on {{ recipe.updated }}
     </p>
+    <form method="post" action="{% url 'recipe_rating' recipe.id %}">
+      {% csrf_token %}
+      <div class="rating-form-grid">
+        {{ rating_form.as_p }}
+        <button class="button">Rate</button>
+      </div>
+    </form>
     <p>Tags: {% for tag in recipe.tags.all %}{{ tag.word }} {% endfor %}</p>
-    <p>{{ recipe.description }}</p>
+    {{ recipe.description | markdownify }}
     <h2>Ingredients</h2>
     <table>
       <thead>
