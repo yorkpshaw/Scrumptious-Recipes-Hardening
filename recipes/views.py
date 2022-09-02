@@ -4,7 +4,6 @@ from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from django.views.generic.list import ListView
 from recipes.forms import RatingForm
-from recipes.forms import RecipeForm
 from recipes.models import Recipe
 from django.contrib.auth.mixins import LoginRequiredMixin
 
@@ -38,11 +37,15 @@ class RecipeDetailView(DetailView):
         return context
 
 
-class RecipeCreateView(CreateView):
+class RecipeCreateView(LoginRequiredMixin, CreateView):
     model = Recipe
     template_name = "recipes/new.html"
-    fields = ["name", "author", "description", "image"]
+    fields = ["name", "description", "image"]
     success_url = reverse_lazy("recipes_list")
+
+    def form_valid(self, form):
+        form.instance.author = self.request.user
+        return super().form_valid(form)
 
 
 class RecipeUpdateView(UpdateView):
@@ -55,11 +58,4 @@ class RecipeUpdateView(UpdateView):
 class RecipeDeleteView(DeleteView):
     model = Recipe
     template_name = "recipes/delete.html"
-    success_url = reverse_lazy("recipes_list")
-
-
-class RecipeCreateView(LoginRequiredMixin, CreateView):
-    model = Recipe
-    template_name = "recipes/new.html"
-    fields = ["name", "author", "description", "image"]
     success_url = reverse_lazy("recipes_list")
